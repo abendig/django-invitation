@@ -40,26 +40,8 @@ functioning installation of Django 1.0 or newer; due to changes needed
 to stabilize Django's APIs prior to the 1.0 release,
 django-invitation will not work with older releases of Django.
 
-**The django-registration application is required in order to use 
+**The django-registration or django-allauth is required in order to use 
 django-invitation.**
-
-Installing from a Mercurial checkout
-------------------------------------
-
-If you have `Mercurial`_ installed on your computer, you can also
-obtain a complete copy of django-invitation by typing::
-
-    hg clone http://code.welldev.org/django-invitation/
-
-Inside the resulting "django-invitation" directory will be a
-directory named "invitation", which is the actual Python module for
-this application; you can symlink it from somewhere on your Python
-path. Using a symlink offers easy upgrades: simply running ``hg pull -u``
-inside the django-invitation directory will fetch updates from the
-main repository and apply them to your local copy.
-
-.. _Mercurial: http://www.selenic.com/mercurial/wiki/
-
 
 Basic use
 =========

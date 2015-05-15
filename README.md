@@ -1,6 +1,6 @@
 django-invitation
 =================
-Forked from https://github.com/lizrice/django-invitation which is forked from http://code.larlet.fr/django-invitation.
+Forked from https://github.com/lizrice/django-invitation which is forked https://bitbucket.org/david/django-invitation.
 
 ### This version has been modified to offer the option of using django-allauth as the authentication backend:
 - Does not require any modifications to django-allauth. 
@@ -26,8 +26,7 @@ previously sent invitations using this format.  This will be removed at a later 
 
 Django Allauth integration
 --------------------------
-***1)*** Follow the setup instructions for django-invitation: 
-http://code.larlet.fr/django-invitation/wiki/Home 
+***1)*** Follow the setup instructions for django-invitation in the docs directory: 
 
 ***2)*** Create an accountadapter.py file and locate it in your project diretory.
 

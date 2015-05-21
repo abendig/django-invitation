@@ -1,0 +1,4 @@
+include AUTHORS README.md LICENSE
+recursive-include invitation *.py *.html
+recursive-include invitation/static *
+recursive-include invitation/locale *

@@ -54,7 +54,12 @@ class InvitationKeyManager(models.Manager):
             return invitation_key
         return False
 
-    def create_invitation(self, user, recipient=('recipient@email.com', 'Sirname', 'Lastname' ), save=True):
+    def create_invitation(
+            self,
+            user,
+            recipient=('recipient@email.com', 'Sirname', 'Lastname'),
+            save=True
+        ):
         """
         Create an ``InvitationKey`` and returns it.
 
@@ -62,14 +67,31 @@ class InvitationKeyManager(models.Manager):
         from a combination of the ``User``'s username and a random salt.
         """
         salt = sha_constructor(str(random.random())).hexdigest()[:5]
-        key = sha_constructor("%s%s%s" % (datetime.datetime.now(), salt, user.username)).hexdigest()
+        key = sha_constructor("%s%s%s" % (
+            datetime.datetime.now(),
+            salt,
+            user.username
+        )).hexdigest()
         if not save:
-            return InvitationKey(from_user=user, key='previewkey00000000', recipient=recipient, date_invited=datetime.datetime.now())
+            return InvitationKey(
+                from_user=user,
+                key='previewkey00000000',
+                recipient=recipient,
+                date_invited=datetime.datetime.now()
+            )
         return self.create(from_user=user, key=key, recipient=recipient)
 
     def create_bulk_invitation(self, user, key, uses, recipient):
-        """ Create a set of invitation keys - these can be used by anyone, not just a specific recipient """
-        return self.create(from_user=user, key=key, uses_left=uses, recipient=None)
+        """
+        Create a set of invitation keys - these can be used by anyone,
+        not just a specific recipient
+        """
+        return self.create(
+            from_user=user,
+            key=key,
+            uses_left=uses,
+            recipient=None
+        )
 
     def remaining_invitations_for_user(self, user):
         """
@@ -143,47 +165,64 @@ class InvitationKey(models.Model):
     def get_context(self, sender_note=None):
         invitation_url = self.root_url + reverse('invitation_invited', kwargs={'invitation_key':self.key})
         exp_date = self.date_invited + datetime.timedelta(days=settings.ACCOUNT_INVITATION_DAYS)
-        context = { 'invitation_key': self,
-                    'expiration_days': settings.ACCOUNT_INVITATION_DAYS,
-                    'from_user': self.from_user,
-                    'sender_note': sender_note,
-                    'site': self.site,
-                    'root_url': self.root_url,
-                    'expiration_date': exp_date,
-                    'recipient': self.recipient,
-                    'token': self.generate_token(invitation_url),
-                    'invitation_url':invitation_url}
+        context = {
+            'invitation_key': self,
+            'expiration_days': settings.ACCOUNT_INVITATION_DAYS,
+            'from_user': self.from_user,
+            'sender_note': sender_note,
+            'site': self.site,
+            'root_url': self.root_url,
+            'expiration_date': exp_date,
+            'recipient': self.recipient,
+            'token': self.generate_token(invitation_url),
+            'invitation_url': invitation_url
+        }
         return context
 
-    def send_to(self, from_email=settings.DEFAULT_FROM_EMAIL, sender_note=None,):
+    def send_to(
+            self,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            sender_note=None
+        ):
         """
         Send an invitation email to ``email``.
         """
         context = self.get_context(sender_note)
 
-        subject = render_to_string('invitation/invitation_email_subject.txt', context)
+        subject = render_to_string(
+            'invitation/invitation_email_subject.txt',
+            context
+        )
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
 
-        message_html = render_to_string('invitation/invitation_email.html',context)
+        message_html = render_to_string(
+            'invitation/invitation_email.html',
+            context
+        )
         context.update({'sender_note':mark_safe(strip_tags(sender_note))})
-        message = render_to_string('invitation/invitation_email.txt',context)
-        msg = EmailMultiAlternatives(subject, message, from_email, [self.recipient[0]])
+        message = render_to_string('invitation/invitation_email.txt', context)
+        msg = EmailMultiAlternatives(
+            subject,
+            message,
+            from_email,
+            [self.recipient[0]]
+        )
         msg.attach_alternative(message_html, "text/html")
         msg.send()
 
     def generate_token(self, invitation_url):
         def stamp(image, text, offset):
             f = ImageFont.load_default()
-            txt_img=Image.new('RGBA', f.getsize(text))
+            txt_img = Image.new('RGBA', f.getsize(text))
             d = ImageDraw.Draw(txt_img)
-            d.text( (0, 0), text,  font=f, fill="#888")
-            exp_img_r = txt_img.rotate(0,  expand=1)
+            d.text((0, 0), text, font=f, fill="#888")
+            exp_img_r = txt_img.rotate(0, expand=1)
             iw, ih = image.size
             tw, th = txt_img.size
             x = iw/2 - tw/2
             y = ih/2 - th/2
-            image.paste( exp_img_r, (x,y+offset), exp_img_r)
+            image.paste(exp_img_r, (x, y+offset), exp_img_r)
             return offset+th
 
         #normalize sataic url
@@ -241,12 +280,17 @@ models.signals.post_save.connect(user_post_save, sender=User)
 def invitation_key_post_save(sender, instance, created, **kwargs):
     """Decrement invitations_remaining when InvitationKey is created."""
     if created:
-        invitation_user = InvitationUser.objects.get(inviter=instance.from_user)
+        invitation_user = InvitationUser.objects.get(
+            inviter=instance.from_user
+        )
         remaining = invitation_user.invitations_remaining
         invitation_user.invitations_remaining = remaining-1
         invitation_user.save()
 
-models.signals.post_save.connect(invitation_key_post_save, sender=InvitationKey)
+models.signals.post_save.connect(
+    invitation_key_post_save,
+    sender=InvitationKey
+)
 
 def invitation_key_pre_delete(sender, instance, **kwargs):
     """Delete token image."""
@@ -255,5 +299,8 @@ def invitation_key_pre_delete(sender, instance, **kwargs):
     except:
         pass
 
-models.signals.post_delete.connect(invitation_key_pre_delete, sender=InvitationKey)
+models.signals.post_delete.connect(
+    invitation_key_pre_delete,
+    sender=InvitationKey
+)
 

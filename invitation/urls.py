@@ -9,7 +9,7 @@ if getattr(settings, 'INVITATION_USE_ALLAUTH', False):
 else:
     from registration.forms import RegistrationFormTermsOfService
     reg_backend = 'registration.backends.default.DefaultBackend'
-    
+
 from invitation.views import invite, invited, register, send_bulk_invitations, token
 
 urlpatterns = patterns('',
@@ -22,14 +22,14 @@ urlpatterns = patterns('',
     url(r'^invite/bulk/$',
                 send_bulk_invitations,
                 name='invitation_invite_bulk'),
-    url(r'^invited/(?P<invitation_key>\w+)&(?P<invitation_recipient>\S+@\S+)?/$', 
+    url(r'^invited/(?P<invitation_key>\w+)(&(?P<invitation_recipient>\S+@\S+))?/$',
                 invited,
                 name='invitation_invited'),
     url(r'^register/$',
                 register,
                 { 'backend': reg_backend },
                 name='registration_register'),
-    url(r'^token/(?P<key>\w+)/$', 
+    url(r'^token/(?P<key>\w+)/$',
                 token,
                 name='invitation_token'),
 )

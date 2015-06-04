@@ -225,10 +225,16 @@ class InvitationKey(models.Model):
             image.paste(exp_img_r, (x, y+offset), exp_img_r)
             return offset+th
 
+        # normalize static URL
+        r_parse = urlparse(root_url, 'http')
+        s_parse = urlparse(settings.STATIC_URL, 'http')
+        s_parts = (s_parse.scheme, s_parse.netloc or r_parse.netloc, s_parse.path, s_parse.params, s_parse.query, s_parse.fragment)
+        static_url = urlunparse(s_parts)
+
         #open base token image
-        img_url = settings.STATIC_ROOT+'/notification/img/token-invite.png'
+        img_url = static_url+'notification/img/token-invite.png'
         temp_img = NamedTemporaryFile()
-        temp_img.write(open(img_url, "r").read())
+        temp_img.write(urllib2.urlopen(img_url).read())
         temp_img.flush()
         image = Image.open(temp_img.name)
 
